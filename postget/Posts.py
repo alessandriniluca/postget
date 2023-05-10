@@ -41,8 +41,8 @@ class Posts:
             max_id (int): id of the tweet to end the search to (default = -1 means not set. Notice that need to be defined also since_id). If one between since or until is set, since_id and max_id will not be considered
             since (str): String of the date (excluded) from which the tweets will be returned. Format: YYYY-MM-DD, UTC time. Temporarily supported only for mode 1. If you set also since_time, or until_time, this will be ignored
             until (str): String of the date (included) until which the tweets will be returned. Format: YYYY-MM-DD, UTC time. Temporarily supported only for mode 1. If you set also since_time, or until_time, this will be ignored
-            since_time (int): String of the time from which the tweets will be returned. Format: timestamp, UTC time. Temporarily supported only for mode 1
-            until_time (int): String of the time until which the tweets will be returned. Format: timestamp, UTC time. Temporarily supported only for mode 1
+            since_time (str): String of the time from which the tweets will be returned. Format: timestamp, UTC time. Temporarily supported only for mode 1
+            until_time (str): String of the time until which the tweets will be returned. Format: timestamp, UTC time. Temporarily supported only for mode 1
         """
         # Parameters initialization
         self.username = username
