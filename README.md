@@ -100,5 +100,7 @@ Please, change and access the parameters with getters and setters.
 
 ## Roadmap
 
-- [ ] Support for custom time digitation (standard time plus or minus epsilon): version 0.2.1
-- [ ] Avoiding the search to crash when one div fails, just raise an exception: version 0.2.2
+- [ ] Support for custom time digitation (standard time plus or minus epsilon)
+- [ ] Avoiding the search to crash when one div fails, just raise an exception
+- [ ] Adding support for advanced search in the search bar
+- [ ] Adding complete support for multiple searches without closing the browser
