@@ -9,9 +9,13 @@ import re
 import random
 from selenium.webdriver.chrome.options import Options
 from datetime import datetime
+from .exceptions.exceptions import WrongDateString
 
 # Regex to match the image link
 ACTUAL_IMAGE_PATTERN = '^https:\/\/pbs\.twimg\.com\/media.*'
+
+# Regex to match date in 'until' and 'since' parameters. Notice that it does NOT check the validity of the date according to the month (e.g., one could declare) 2023-02-31.
+DATE_SINCE_UNTIL = r'^(?!0000)[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$'
 
 # Path to the chromedriver
 PATH = '/usr/bin/chromedriver'
@@ -58,6 +62,15 @@ class Posts:
         self.since = since
         self.since_time = since_time
         self.until_time = until_time
+
+        try:
+            self.check_date()
+        except WrongDateString as e:
+            print(f'[postget]: {e}')
+            print('           Ignoring since and until parameters since one among them was set wrong')
+            self.since = 'none'
+            self.until = 'none'
+            print(f'           Setting them back to default values to ignore them: since = {self.since}, until = {self.until}')
 
         # Initialization of the lists of links and of tweets
         self.actual_images = []
@@ -325,6 +338,23 @@ class Posts:
             for tweet in self.tweets:
                 print(f'           {self.tweets[tweet]}')
     
+    ###### Checks ######
+    def check_date(self):
+        """Checks if the date of advanced search parameters (since, until) is in the correct format
+
+        Args:
+            date (str): Date to check
+
+        Returns:
+            bool: True if the date is in the correct format, False otherwise
+        """
+        if(self.since != 'none'):
+            if not re.match(DATE_SINCE_UNTIL, self.since):
+                raise WrongDateString(self.since, 'YYYY-MM-DD')
+        if(self.until != 'none'):
+            if not re.match(DATE_SINCE_UNTIL, self.until):
+                raise WrongDateString(self.until, 'YYYY-MM-DD')
+    
     ###### Formatters ######
 
     def get_discussions_links(self):
@@ -523,6 +553,14 @@ class Posts:
             since (str): since date of the search
         """
         self.since = since
+        try:
+            self.check_date()
+        except WrongDateString as e:
+            print(f'[postget]: {e}')
+            print('           Ignoring since and until parameters since one among them was set wrong')
+            self.since = 'none'
+            self.until = 'none'
+            print(f'           Setting them back to default values to ignore them: since = {self.since}, until = {self.until}')
     
     def get_until(self):
         """get the until date of the search
@@ -539,6 +577,14 @@ class Posts:
             until (str): until date of the search
         """
         self.until = until
+        try:
+            self.check_date()
+        except WrongDateString as e:
+            print(f'[postget]: {e}')
+            print('           Ignoring since and until parameters since one among them was set wrong')
+            self.since = 'none'
+            self.until = 'none'
+            print(f'           Setting them back to default values to ignore them: since = {self.since}, until = {self.until}')
     
     def get_since_time(self):
         """get the since time of the search
