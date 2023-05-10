@@ -8,6 +8,7 @@ from selenium.webdriver.common.keys import Keys
 import re
 import random
 from selenium.webdriver.chrome.options import Options
+from datetime import datetime
 
 # Regex to match the image link
 ACTUAL_IMAGE_PATTERN = '^https:\/\/pbs\.twimg\.com\/media.*'
@@ -25,7 +26,7 @@ ACTUAL_VIDEO_PREVIEW_PATTERN = '^https:\/\/pbs\.twimg\.com\/ext_tw_video_thumb.*
 TARGET_URL = 'https://www.twitter.com/login'
 
 class Posts:
-    def __init__(self, username: str, password: str, query: str, wait_scroll_base: int = 15, wait_scroll_epsilon :float = 5, num_scrolls: int = 10, mode: int = 0, since_id: int = -1, max_id: int = -1):
+    def __init__(self, username: str, password: str, query: str, wait_scroll_base: int = 15, wait_scroll_epsilon :float = 5, num_scrolls: int = 10, mode: int = 0, since_id: int = -1, max_id: int = -1, since: str = 'none', until: str = 'none', since_time: str = 'none', until_time: str = 'none'):
         """Class initializator
 
         Args:
@@ -36,8 +37,12 @@ class Posts:
             wait_scroll_epsilon (float): random time to be added to the base time to wait between one scroll and the subsequent, in order to avoid being detected as a bot (expressed in number of seconds, default 5)
             num_scrolls (int): number of scrolls to be performed, default 10
             mode (int): Mode of operation: 0 (default) to retrieve just images and video preview, 1 to retrieve also information about tweets
-            since_id (int): id of the tweet to start the search from (default = -1 means not set. Notice that need to be defined also max_id)
-            max_id (int): id of the tweet to end the search to (default = -1 means not set. Notice that need to be defined also since_id)
+            since_id (int): id of the tweet to start the search from (default = -1 means not set. Notice that need to be defined also max_id). If one between since or until is set, since_id and max_id will not be considered
+            max_id (int): id of the tweet to end the search to (default = -1 means not set. Notice that need to be defined also since_id). If one between since or until is set, since_id and max_id will not be considered
+            since (str): String of the date (excluded) from which the tweets will be returned. Format: YYYY-MM-DD, UTC time. Temporarily supported only for mode 1. If you set also since_time, or until_time, this will be ignored
+            until (str): String of the date (included) until which the tweets will be returned. Format: YYYY-MM-DD, UTC time. Temporarily supported only for mode 1. If you set also since_time, or until_time, this will be ignored
+            since_time (str): String of the time from which the tweets will be returned. Format: timestamp, UTC time. Temporarily supported only for mode 1
+            until_time (str): String of the time until which the tweets will be returned. Format: timestamp, UTC time. Temporarily supported only for mode 1
         """
         # Parameters initialization
         self.username = username
@@ -49,6 +54,10 @@ class Posts:
         self.mode = mode
         self.since_id = since_id
         self.max_id = max_id
+        self.until = until
+        self.since = since
+        self.since_time = since_time
+        self.until_time = until_time
 
         # Initialization of the lists of links and of tweets
         self.actual_images = []
@@ -107,7 +116,23 @@ class Posts:
         time.sleep(0.7)
         searchbox.clear()
 
-        for character in self.query:
+        input_query = self.query
+
+        # Higher precedence: if one between since_time and until_time is set, since and until will be ignored
+        if self.since_time != 'none' or self.until_time != 'none':
+            if self.since_time != 'none':
+                input_query += f' since:{self.since_time}'
+            if self.until_time != 'none':
+                input_query += f' until:{self.until_time}'
+        else:
+            if self.since != 'none':
+                input_query += f' since:{self.since}'
+            if self.until != 'none':
+                input_query += f' until:{self.until}'
+        
+        print(f'[postget]: Starting to input \'{input_query}\' in the searchbox')
+
+        for character in input_query:
             searchbox.send_keys(character)
             time.sleep(0.3)
         
@@ -160,16 +185,22 @@ class Posts:
                 # get the <a>...</a> tag containing the string about the id of the discussion (composed of: <username>/status/<id>)
                 username_tweet_id = raw_tweet.find('a', {'class':"css-4rbku5 css-18t94o4 css-901oao r-14j79pv r-1loqt21 r-xoduu5 r-1q142lx r-1w6e6rj r-37j5jr r-a023e6 r-16dba41 r-9aw3ui r-rjixqe r-bcqeeo r-3s2u2q r-qvutc0"})
                 
-                # checking if case since_id and max_id are set, it if not in the range [since_id, max_id])
-                if self.since_id != -1 and self.max_id != -1:
+                # checking if case since_id and max_id are set, it if not in the range [since_id, max_id]), and if advanced queries for times are not set, then we will search by ids.
+                if self.since_id != -1 and self.max_id != -1 and (self.since == 'none' and self.until == 'none') and (self.since_time == 'none' and self.until_time == 'none'):
                     
                     # If the tweet is in the range [since_id, max_id]
                     if int(username_tweet_id['href'].split('/')[3]) >= self.since_id and int(username_tweet_id['href'].split('/')[3]) <= self.max_id:
                         # using the discussion id as key of the dictionary, and checking if not already analyzed
                         if username_tweet_id['href'] not in self.tweets.keys():
-                        
+
+                            # Retrieving username, tweet id, discussion link, and timestamp
+                            iso_timestamp = username_tweet_id.find('time')['datetime']
+                            dt = datetime.strptime(iso_timestamp,'%Y-%m-%dT%H:%M:%S.%fZ')
+                            timestamp = dt.strftime('%Y-%m-%d %H:%M:%S')
+                            discussion_link = f'https://twitter.com{username_tweet_id["href"]}'
+
                             # append username, tweet id, to the dictionary, and initializing the list of links to images and video preview
-                            self.tweets[username_tweet_id['href']] = {"username": username_tweet_id['href'].split('/')[1], "tweet_id": username_tweet_id['href'].split('/')[3], "images": [], "video_preview": []}
+                            self.tweets[username_tweet_id['href']] = {"username": username_tweet_id['href'].split('/')[1], "tweet_id": username_tweet_id['href'].split('/')[3], "discussion_link": discussion_link, "iso_8601_timestamp": iso_timestamp, "datetime_timestamp": timestamp, "images": [], "video_preview": []}
 
                             # Retrieving images and video preview links
                             images = raw_tweet.find_all('img')
@@ -187,8 +218,14 @@ class Posts:
                     # using the discussion id as key of the dictionary, and checking if not already analyzed
                     if username_tweet_id['href'] not in self.tweets.keys():
                         
+                        # Retrieving username, tweet id, discussion link, and timestamp
+                        iso_timestamp = username_tweet_id.find('time')['datetime']
+                        dt = datetime.strptime(iso_timestamp,'%Y-%m-%dT%H:%M:%S.%fZ')
+                        timestamp = dt.strftime('%Y-%m-%d %H:%M:%S')
+                        discussion_link = f'https://twitter.com{username_tweet_id["href"]}'
+
                         # append username, tweet id, to the dictionary, and initializing the list of links to images and video preview
-                        self.tweets[username_tweet_id['href']] = {"username": username_tweet_id['href'].split('/')[1], "tweet_id": username_tweet_id['href'].split('/')[3], "images": [], "video_preview": []}
+                        self.tweets[username_tweet_id['href']] = {"username": username_tweet_id['href'].split('/')[1], "tweet_id": username_tweet_id['href'].split('/')[3],"discussion_link": discussion_link, "iso_8601_timestamp": iso_timestamp, "datetime_timestamp": timestamp, "images": [], "video_preview": []}
 
                         # Retrieving images and video preview links
                         images = raw_tweet.find_all('img')
@@ -438,5 +475,101 @@ class Posts:
             mode (int): mode of the search, can be either 0 (simple search with just images or video previews' links) or 1 (with complete information about tweets)
         """
         self.mode = mode
+    
+    def get_since_id(self):
+        """get the since_id of the search
+
+        Returns:
+            int: since_id of the search
+        """
+        return self.since_id
+    
+    def set_since_id(self, since_id :int):
+        """set the since_id of the search
+
+        Args:
+            since_id (int): since_id of the search
+        """
+        self.since_id = since_id
+    
+    def get_max_id(self):
+        """get the max_id of the search
+
+        Returns:
+            int: max_id of the search
+        """
+        return self.max_id
+    
+    def set_max_id(self, max_id :int):
+        """set the max_id of the search
+
+        Args:
+            max_id (int): max_id of the search
+        """
+        self.max_id = max_id
+    
+    def get_since(self):
+        """get the since date of the search
+
+        Returns:
+            str: since date of the search
+        """
+        return self.since
+    
+    def set_since(self, since :str):
+        """set the since date of the search
+
+        Args:
+            since (str): since date of the search
+        """
+        self.since = since
+    
+    def get_until(self):
+        """get the until date of the search
+
+        Returns:
+            str: until date of the search
+        """
+        return self.until
+    
+    def set_until(self, until :str):
+        """set the until date of the search
+
+        Args:
+            until (str): until date of the search
+        """
+        self.until = until
+    
+    def get_since_time(self):
+        """get the since time of the search
+
+        Returns:
+            str: since time of the search
+        """
+        return self.since_time
+    
+    def set_since_time(self, since_time :str):
+        """set the since time of the search
+
+        Args:
+            since_time (str): since time of the search
+        """
+        self.since_time = since_time
+    
+    def get_until_time(self):
+        """get the until time of the search
+
+        Returns:
+            str: until time of the search
+        """
+        return self.until_time
+    
+    def set_until_time(self, until_time :str):
+        """set the until time of the search
+
+        Args:
+            until_time (str): until time of the search
+        """
+        self.until_time = until_time
 
     ###### End of getter and setter methods ######
