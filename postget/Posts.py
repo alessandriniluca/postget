@@ -9,7 +9,7 @@ import re
 import random
 from selenium.webdriver.chrome.options import Options
 from datetime import datetime
-from .exceptions.exceptions import WrongDateString
+from .exceptions.exceptions import WrongDateString, NoTweetsReturned
 
 # Regex to match the image link
 ACTUAL_IMAGE_PATTERN = '^https:\/\/pbs\.twimg\.com\/media.*'
@@ -129,23 +129,23 @@ class Posts:
         time.sleep(0.7)
         searchbox.clear()
 
-        input_query = self.query
+        self.input_query = self.query
 
         # Higher precedence: if one between since_time and until_time is set, since and until will be ignored
         if self.since_time != 'none' or self.until_time != 'none':
             if self.since_time != 'none':
-                input_query += f' since:{self.since_time}'
+                self.input_query += f' since:{self.since_time}'
             if self.until_time != 'none':
-                input_query += f' until:{self.until_time}'
+                self.input_query += f' until:{self.until_time}'
         else:
             if self.since != 'none':
-                input_query += f' since:{self.since}'
+                self.input_query += f' since:{self.since}'
             if self.until != 'none':
-                input_query += f' until:{self.until}'
+                self.input_query += f' until:{self.until}'
         
-        print(f'[postget]: Starting to input \'{input_query}\' in the searchbox')
+        print(f'[postget]: Starting to input \'{self.input_query}\' in the searchbox')
 
-        for character in input_query:
+        for character in self.input_query:
             searchbox.send_keys(character)
             time.sleep(0.3)
         
@@ -172,6 +172,11 @@ class Posts:
             print(f'[postget]: since_id and max_id are set. since_id = {self.since_id}, max_id = {self.max_id}.')
         else:
             print(f'[postget]: since_id and max_id are not set. since_id = {self.since_id}, max_id = {self.max_id}.')
+        
+        page_source = self.driver.page_source
+        soup = BeautifulSoup(page_source, 'html.parser')
+        if len(soup.find_all('div', {'data-testid':'cellInnerDiv'})) == 0:
+                raise NoTweetsReturned(self.input_query)
 
         while True:
             count += 1
