@@ -475,5 +475,101 @@ class Posts:
             mode (int): mode of the search, can be either 0 (simple search with just images or video previews' links) or 1 (with complete information about tweets)
         """
         self.mode = mode
+    
+    def get_since_id(self):
+        """get the since_id of the search
+
+        Returns:
+            int: since_id of the search
+        """
+        return self.since_id
+    
+    def set_since_id(self, since_id :int):
+        """set the since_id of the search
+
+        Args:
+            since_id (int): since_id of the search
+        """
+        self.since_id = since_id
+    
+    def get_max_id(self):
+        """get the max_id of the search
+
+        Returns:
+            int: max_id of the search
+        """
+        return self.max_id
+    
+    def set_max_id(self, max_id :int):
+        """set the max_id of the search
+
+        Args:
+            max_id (int): max_id of the search
+        """
+        self.max_id = max_id
+    
+    def get_since(self):
+        """get the since date of the search
+
+        Returns:
+            str: since date of the search
+        """
+        return self.since
+    
+    def set_since(self, since :str):
+        """set the since date of the search
+
+        Args:
+            since (str): since date of the search
+        """
+        self.since = since
+    
+    def get_until(self):
+        """get the until date of the search
+
+        Returns:
+            str: until date of the search
+        """
+        return self.until
+    
+    def set_until(self, until :str):
+        """set the until date of the search
+
+        Args:
+            until (str): until date of the search
+        """
+        self.until = until
+    
+    def get_since_time(self):
+        """get the since time of the search
+
+        Returns:
+            str: since time of the search
+        """
+        return self.since_time
+    
+    def set_since_time(self, since_time :str):
+        """set the since time of the search
+
+        Args:
+            since_time (str): since time of the search
+        """
+        self.since_time = since_time
+    
+    def get_until_time(self):
+        """get the until time of the search
+
+        Returns:
+            str: until time of the search
+        """
+        return self.until_time
+    
+    def set_until_time(self, until_time :str):
+        """set the until time of the search
+
+        Args:
+            until_time (str): until time of the search
+        """
+        self.until_time = until_time
 
     ###### End of getter and setter methods ######
