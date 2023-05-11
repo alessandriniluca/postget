@@ -106,6 +106,7 @@ A couple of words on advenced filters:
     - `ElementNotLoaded` exception when the searchbox is not loaded in time, probably the page could be stuck in rendering and exceeded the timeout
     - `NoTweetsReturned` when the simplified search returns no tweets
     - `NoTweetsReturned` when the complete search returns no tweets.
+- `go_home()` to go back to the homepage.
 - `clear_images()` to clear the list of the images' urls (operating mode 0)
 - `clear_video_previews()` to clear the list of the video previews' urls (operating mode 0)
 - `clear_tweets()` to clear the tweet dictionary (operating mode 1)
@@ -120,4 +121,3 @@ Please, change and access the parameters with getters and setters.
 ## Roadmap
 
 - [ ] Support for custom digitation speed (standard time plus or minus epsilon)
-- [ ] Adding complete support for multiple searches without closing the browser

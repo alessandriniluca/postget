@@ -87,6 +87,14 @@ class Posts:
         self.driver.get(TARGET_URL)
 
     ###### Utility methods ######
+    def go_home(self):
+        """Method used to go back to the homepage.
+        """
+
+        print('[postget]: Going to the homepage.')
+        self.driver.get('https://twitter.com/home')
+        print('[postget]: Returned to the homepage.')
+
     def login(self):
         """Method used to perform the login in the twitter account
 
