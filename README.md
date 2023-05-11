@@ -97,8 +97,15 @@ A couple of words on advenced filters:
     - `get_video_preview()` to return the list of the videos' previews (operating mode 0)
     - `get_tweets_data()` to return the dictionary of tweets (operating mode 1)
     - `get_discussions_links()` to return the discussion links returned
-- `login()` to perform the login according to the values of `username` and `password`
-- `search()` according to the value of `query` (it takes care of handling the operating mode)
+- `login()` to perform the login according to the values of `username` and `password`. **Raises**:
+    - `ElementNotLoaded` exception when the username input is not loaded within timeout
+    - `ElementNotLoaded` exception when the button to click to go to the password input is not loaded within timeout
+    - `ElementNotLoeaded` exception when the password input is not loaded within timeout
+    - `ElementNotLoaded` exception when the button to click to go to the home page is not loaded within timeout
+- `search()` according to the value of `query` (it takes care of handling the operating mode). **Raises**:
+    - `ElementNotLoaded` exception when the searchbox is not loaded in time, probably the page could be stuck in rendering and exceeded the timeout
+    - `NoTweetsReturned` when the simplified search returns no tweets
+    - `NoTweetsReturned` when the complete search returns no tweets.
 - `clear_images()` to clear the list of the images' urls (operating mode 0)
 - `clear_video_previews()` to clear the list of the video previews' urls (operating mode 0)
 - `clear_tweets()` to clear the tweet dictionary (operating mode 1)
@@ -107,9 +114,10 @@ A couple of words on advenced filters:
 
 Please, change and access the parameters with getters and setters.
 
+## Self Management of Exceptions
+- When the format of parameters `since` and `until` is not correct (i.e., is not `YYYY-MM-DD`), those parameters internally raises an exception, which will cause the reset to their default value (`none`) before proceding.
+
 ## Roadmap
 
 - [ ] Support for custom digitation speed (standard time plus or minus epsilon)
-- [ ] Avoiding the search to crash when one div fails, just raise an exception
-- [ ] Adding support for advanced search in the search bar
 - [ ] Adding complete support for multiple searches without closing the browser

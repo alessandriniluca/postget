@@ -91,10 +91,10 @@ class Posts:
         """Method used to perform the login in the twitter account
 
         Raises:
-            ElementNotLoaded: When the username input is not loaded
-            ElementNotLoaded: When the button to click to go to the password input is not loaded
-            ElementNotLoaded: When the password input is not loaded
-            ElementNotLoaded: When the button to click to go to the home page is not loaded
+            ElementNotLoaded: When the username input is not loaded within timeout
+            ElementNotLoaded: When the button to click to go to the password input is not loaded within timeout
+            ElementNotLoaded: When the password input is not loaded within timeout
+            ElementNotLoaded: When the button to click to go to the home page is not loaded within timeout
         """
 
         print('[postget]: Logging in')
