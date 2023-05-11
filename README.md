@@ -79,10 +79,10 @@ Import the class `Posts`. Main **parameters in the initialization**:
 - `since_id` (`int`): id from which tweets will be saved (tweets with an id `<` with respect than this value will be discarded). If set to `-1` (default value), this parameter will not be considered. Notice that this will be considered only if also `max_id` will be set, and will work only for search mode equal to `1`
 - `max_id` (`int`): id until tweets will be saved (tweets with an id `>` with respect to this value, will be discarded). Notice that this will be considered only if also `max_id` will be set, and will work only for search mode equal to `1`
 - `mode` (`int`): selects the operating mode, the default is `0`.
-- `since` (`str`): String of the date (excluded) from which the tweets will be returned. Format: `YYYY-MM-DD`, UTC time. Temporarily supported only for mode 1. If you set also since_time, or until_time, this will be ignored
-- `until` (`str`): String of the date (included) until which the tweets will be returned. Format: YYYY-MM-DD, UTC time. Temporarily supported only for mode 1. If you set also since_time, or until_time, this will be ignored
-- `since_time` (`str`): String of the time from which the tweets will be returned. Format: timestamp, UTC time. Temporarily supported only for mode 1
-- `until_time` (`str`): String of the time until which the tweets will be returned. Format: timestamp, UTC time. Temporarily supported only for mode 1
+- `since` (`str`): String of the date (excluded) from which the tweets will be returned. Format: `YYYY-MM-DD`, UTC time. Temporarily supported only for mode `1`. If you set also since_time, or until_time, this will be ignored. Wrong formats will be ignored
+- `until` (`str`): String of the date (included) until which the tweets will be returned. Format: `YYYY-MM-DD`, UTC time. Temporarily supported only for mode `1`. If you set also since_time, or until_time, this will be ignored. Wrong formats will be ignored
+- `since_time` (`str`): String of the time from which the tweets will be returned. Format: timestamp, UTC time. Temporarily supported only for mode `1`
+- `until_time` (`str`): String of the time until which the tweets will be returned. Format: timestamp, UTC time. Temporarily supported only for mode `1`
 
 A couple of words on advenced filters:
 
