@@ -37,13 +37,12 @@ def main():
         print(e)
     try:
         my_object.search()
+        my_object.print_results()
+        my_object.quit_browser()
     except ElementNotLoaded as e:
         print(e)
     except NoTweetsReturned as e:
         print(e)
-    
-    my_object.print_results()
-    my_object.quit_browser()
 
 if __name__ == '__main__':
     main()
