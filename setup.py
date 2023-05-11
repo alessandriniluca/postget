@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='postget',
-    version='0.2.1',
+    version='0.3.0',
     description='Posts getter',
     author='',
     author_email='',

@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 import time
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
@@ -9,9 +10,13 @@ import re
 import random
 from selenium.webdriver.chrome.options import Options
 from datetime import datetime
+from .exceptions.exceptions import WrongDateString, NoTweetsReturned, ElementNotLoaded
 
 # Regex to match the image link
 ACTUAL_IMAGE_PATTERN = '^https:\/\/pbs\.twimg\.com\/media.*'
+
+# Regex to match date in 'until' and 'since' parameters. Notice that it does NOT check the validity of the date according to the month (e.g., one could declare) 2023-02-31.
+DATE_SINCE_UNTIL = r'^(?!0000)[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$'
 
 # Path to the chromedriver
 PATH = '/usr/bin/chromedriver'
@@ -59,6 +64,15 @@ class Posts:
         self.since_time = since_time
         self.until_time = until_time
 
+        try:
+            self.check_date()
+        except WrongDateString as e:
+            print(f'[postget]: {e}')
+            print('           Ignoring since and until parameters since one among them was set wrong')
+            self.since = 'none'
+            self.until = 'none'
+            print(f'           Setting them back to default values to ignore them: since = {self.since}, until = {self.until}')
+
         # Initialization of the lists of links and of tweets
         self.actual_images = []
         self.video_preview = []
@@ -75,64 +89,92 @@ class Posts:
     ###### Utility methods ######
     def login(self):
         """Method used to perform the login in the twitter account
+
+        Raises:
+            ElementNotLoaded: When the username input is not loaded within timeout
+            ElementNotLoaded: When the button to click to go to the password input is not loaded within timeout
+            ElementNotLoaded: When the password input is not loaded within timeout
+            ElementNotLoaded: When the button to click to go to the home page is not loaded within timeout
         """
 
         print('[postget]: Logging in')
         # Input username
-        username_input = self.wait.until(EC.visibility_of_element_located((By.NAME, "text")))
+        try:
+            username_input = self.wait.until(EC.visibility_of_element_located((By.NAME, "text")))
+        except TimeoutException:
+            raise ElementNotLoaded('Username input not loaded')
+        
         time.sleep(0.7)
         for character in self.username:
             username_input.send_keys(character)
             time.sleep(0.3) # pause for 0.3 seconds
         # username_input.send_keys('send username here') -> can also be used, but hey ... my robot is a human
-
-        button = self.wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div/div/div/div[6]/div")))
+        try:
+            button = self.wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div/div/div/div[6]/div")))
+        except TimeoutException:
+            raise ElementNotLoaded('Button to be pressed after the username input not loaded')
+        
         time.sleep(1)
         button.click()
 
         # Input password
-        password_input = self.wait.until(EC.visibility_of_element_located((By.NAME, "password")))
+        try:
+            password_input = self.wait.until(EC.visibility_of_element_located((By.NAME, "password")))
+        except TimeoutException:
+            raise ElementNotLoaded('Password input not loaded')
+        
         time.sleep(0.7)
         for character in self.password:
             password_input.send_keys(character)
             time.sleep(0.3) # pause for 0.3 seconds
 
-
-        button = self.wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[2]/div/div[1]/div/div/div/div")))
+        try:
+            button = self.wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[2]/div/div[1]/div/div/div/div")))
+        except TimeoutException:
+            raise ElementNotLoaded('Button to be pressed after the password input not loaded')
         time.sleep(1)
+
         button.click()
 
         print('[postget]: Logged in successfully')
 
     def search(self):
-        """Method used to search. It will take care of performing the search according to the mode
+        """Method used to search. It will take care of performing the search according to the mode and the parameters set
+
+        Raises:
+            ElementNotLoaded: when the searchbox is not loaded in time, probably the page could be stuck in rendering and exceeded the timeout
+            NoTweetsReturned: when the simplified search returns no tweets
+            NoTweetsReturned: when the complete search returns no tweets
         """
 
         # Query input
         print('[postget]: From now on, it may take a while, according to parameters.')
-        searchbox = self.wait.until(EC.visibility_of_element_located((By.XPATH, "//input[@aria-label='Search query']")))
+        try:
+            searchbox = self.wait.until(EC.visibility_of_element_located((By.XPATH, "//input[@aria-label='Search query']")))
+        except TimeoutException:
+            raise ElementNotLoaded('Searchbox not loaded in time.')
         # //TODO: clear query, the second query changes location to be opened
 
         time.sleep(0.7)
         searchbox.clear()
 
-        input_query = self.query
+        self.input_query = self.query
 
         # Higher precedence: if one between since_time and until_time is set, since and until will be ignored
         if self.since_time != 'none' or self.until_time != 'none':
             if self.since_time != 'none':
-                input_query += f' since:{self.since_time}'
+                self.input_query += f' since:{self.since_time}'
             if self.until_time != 'none':
-                input_query += f' until:{self.until_time}'
+                self.input_query += f' until:{self.until_time}'
         else:
             if self.since != 'none':
-                input_query += f' since:{self.since}'
+                self.input_query += f' since:{self.since}'
             if self.until != 'none':
-                input_query += f' until:{self.until}'
+                self.input_query += f' until:{self.until}'
         
-        print(f'[postget]: Starting to input \'{input_query}\' in the searchbox')
+        print(f'[postget]: Starting to input \'{self.input_query}\' in the searchbox')
 
-        for character in input_query:
+        for character in self.input_query:
             searchbox.send_keys(character)
             time.sleep(0.3)
         
@@ -143,12 +185,21 @@ class Posts:
         time.sleep(pause_time)
         
         if self.mode == 0:
-            self.simplified_search()
+            try:
+                self.simplified_search()
+            except NoTweetsReturned as e:
+                raise e
         else:
-            self.complete_search()
+            try:
+                self.complete_search()
+            except NoTweetsReturned as e:
+                raise e
 
     def complete_search(self):
-        """Method used to perform the complete search
+        """Method that performs the complete search
+
+        Raises:
+            NoTweetsReturned: raised when no tweets are returned by the search
         """
 
         print('[postget]: Starting complete search')
@@ -159,6 +210,11 @@ class Posts:
             print(f'[postget]: since_id and max_id are set. since_id = {self.since_id}, max_id = {self.max_id}.')
         else:
             print(f'[postget]: since_id and max_id are not set. since_id = {self.since_id}, max_id = {self.max_id}.')
+        
+        page_source = self.driver.page_source
+        soup = BeautifulSoup(page_source, 'html.parser')
+        if len(soup.find_all('div', {'data-testid':'cellInnerDiv'})) == 0:
+                raise NoTweetsReturned(self.input_query)
 
         while True:
             count += 1
@@ -241,13 +297,24 @@ class Posts:
            
             
     def simplified_search(self):
-        """Method that performs the simplified search.
+        """Method that performs the simplified search
+
+        Raises:
+            NoTweetsReturned: raised when no tweets are returned by the search
         """
 
         print('[postget]: Starting simplified search')
 
+        if self.since_id != -1 or self.max_id != -1:
+            print('[postget]: Simplified search does not support since_id and max_id parameters, since while browsing doesen\'t retrieve those information. Ignoring them.')
+
         count = 0
         destination = 0
+
+        page_source = self.driver.page_source
+        soup = BeautifulSoup(page_source, 'html.parser')
+        if len(soup.find_all('div', {'data-testid':'cellInnerDiv'})) == 0:
+                raise NoTweetsReturned(self.input_query)
 
         while True:
             count += 1
@@ -324,6 +391,20 @@ class Posts:
             print('[postget]: Hey hey ... here are the tweets:')
             for tweet in self.tweets:
                 print(f'           {self.tweets[tweet]}')
+    
+    ###### Checks ######
+    def check_date(self):
+        """Checks if the date of advanced search parameters (since, until) is in the correct format
+
+        Raises:
+            WrongDateString: If the dates are in wrong format
+        """
+        if(self.since != 'none'):
+            if not re.match(DATE_SINCE_UNTIL, self.since):
+                raise WrongDateString(self.since, 'YYYY-MM-DD')
+        if(self.until != 'none'):
+            if not re.match(DATE_SINCE_UNTIL, self.until):
+                raise WrongDateString(self.until, 'YYYY-MM-DD')
     
     ###### Formatters ######
 
@@ -523,6 +604,14 @@ class Posts:
             since (str): since date of the search
         """
         self.since = since
+        try:
+            self.check_date()
+        except WrongDateString as e:
+            print(f'[postget]: {e}')
+            print('           Ignoring since and until parameters since one among them was set wrong')
+            self.since = 'none'
+            self.until = 'none'
+            print(f'           Setting them back to default values to ignore them: since = {self.since}, until = {self.until}')
     
     def get_until(self):
         """get the until date of the search
@@ -539,6 +628,14 @@ class Posts:
             until (str): until date of the search
         """
         self.until = until
+        try:
+            self.check_date()
+        except WrongDateString as e:
+            print(f'[postget]: {e}')
+            print('           Ignoring since and until parameters since one among them was set wrong')
+            self.since = 'none'
+            self.until = 'none'
+            print(f'           Setting them back to default values to ignore them: since = {self.since}, until = {self.until}')
     
     def get_since_time(self):
         """get the since time of the search

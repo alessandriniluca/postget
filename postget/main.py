@@ -1,5 +1,6 @@
 import argparse
 from .Posts import Posts
+from .exceptions.exceptions import *
 
 def parse_args():
     parser = argparse.ArgumentParser(description='My Python Package')
@@ -30,9 +31,17 @@ def main():
     my_object = Posts(args.username, args.password, args.query, args.wait_scroll_base, args.wait_scroll_epsilon, args.num_scrolls, args.mode, args.since_id, args.max_id, args.since, args.until, args.since_time, args.until_time)
 
     # Run
-    my_object.login()
-    my_object.search()
-    my_object.print_results()
+    try:
+        my_object.login()
+    except ElementNotLoaded as e:
+        print(e)
+    try:
+        my_object.search()
+        my_object.print_results()
+    except ElementNotLoaded as e:
+        print(e)
+    except NoTweetsReturned as e:
+        print(e)
     my_object.quit_browser()
 
 if __name__ == '__main__':
