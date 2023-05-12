@@ -1,5 +1,6 @@
 import argparse
 from .Posts import Posts
+from .exceptions.exceptions import *
 
 def parse_args():
     parser = argparse.ArgumentParser(description='My Python Package')
@@ -10,8 +11,12 @@ def parse_args():
     parser.add_argument('--num_scrolls', type=int, metavar='', default=10, help='Number of scrolls to be performed, default: 10')
     parser.add_argument('--query', type=str, metavar='', help='Query to be searched on Twitter')
     parser.add_argument('--mode',type=int, metavar='', default=0, help='Mode of operation: 0 (default) to retrieve just images and video preview, 1 to retrieve also information about tweets')
-    parser.add_argument('--since_id', type=int, metavar='', default = -1, help='id of the tweet to start the search from (default = -1 means not set. Notice that need to be defined also max_id)')
-    parser.add_argument('--max_id', type=int, metavar='', default = -1, help='id of the tweet to end the search to (default = -1 means not set. Notice that need to be defined also since_id)')
+    parser.add_argument('--since_id', type=int, metavar='', default = -1, help='id of the tweet to start the search from (default = -1 means not set. Notice that need to be defined also max_id). If one between since or until is set, since_id and max_id will not be considered')
+    parser.add_argument('--max_id', type=int, metavar='', default = -1, help='id of the tweet to end the search to (default = -1 means not set. Notice that need to be defined also since_id). If one between since or until is set, since_id and max_id will not be considered')
+    parser.add_argument('--until', type=str, metavar='YYYY-MM-DD', default='none', help='String of the date (excluded) until which the tweets will be returned. Format: YYYY-MM-DD, UTC time. Temporarily supported only for mode 1. If you set also since_time, or until_time, this will be ignored')
+    parser.add_argument('--since', type=str, metavar='YYYY-MM-DD', default='none', help='String of the date (included) from which the tweets will be returned. Format: YYYY-MM-DD, UTC time. Temporarily supported only for mode 1. If you set also since_time, or until_time, this will be ignored')
+    parser.add_argument('--since_time', type=str, metavar='<timestamp>', default='none', help='String of the time from which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1')
+    parser.add_argument('--until_time', type=str, metavar='<timestamp>', default='none', help='String of the time until which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1')
     try:
         args = parser.parse_args()
         return args
@@ -23,12 +28,20 @@ def main():
     args = parse_args()
 
     # Initialization
-    my_object = Posts(args.username, args.password, args.query, args.wait_scroll_base, args.wait_scroll_epsilon, args.num_scrolls, args.mode, args.since_id, args.max_id)
+    my_object = Posts(args.username, args.password, args.query, args.wait_scroll_base, args.wait_scroll_epsilon, args.num_scrolls, args.mode, args.since_id, args.max_id, args.since, args.until, args.since_time, args.until_time)
 
     # Run
-    my_object.login()
-    my_object.search()
-    my_object.print_results()
+    try:
+        my_object.login()
+    except ElementNotLoaded as e:
+        print(e)
+    try:
+        my_object.search()
+        my_object.print_results()
+    except ElementNotLoaded as e:
+        print(e)
+    except NoTweetsReturned as e:
+        print(e)
     my_object.quit_browser()
 
 if __name__ == '__main__':

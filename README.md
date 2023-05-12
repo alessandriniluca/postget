@@ -79,8 +79,17 @@ Import the class `Posts`. Main **parameters in the initialization**:
 - `since_id` (`int`): id from which tweets will be saved (tweets with an id `<` with respect than this value will be discarded). If set to `-1` (default value), this parameter will not be considered. Notice that this will be considered only if also `max_id` will be set, and will work only for search mode equal to `1`
 - `max_id` (`int`): id until tweets will be saved (tweets with an id `>` with respect to this value, will be discarded). Notice that this will be considered only if also `max_id` will be set, and will work only for search mode equal to `1`
 - `mode` (`int`): selects the operating mode, the default is `0`.
+- `since` (`str`): String of the date (excluded) from which the tweets will be returned. Format: `YYYY-MM-DD`, UTC time. Temporarily supported only for mode `1`. If you set also since_time, or until_time, this will be ignored. Wrong formats will be ignored
+- `until` (`str`): String of the date (included) until which the tweets will be returned. Format: `YYYY-MM-DD`, UTC time. Temporarily supported only for mode `1`. If you set also since_time, or until_time, this will be ignored. Wrong formats will be ignored
+- `since_time` (`str`): String of the time from which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode `1`
+- `until_time` (`str`): String of the time until which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode `1`
 
-A couple of words on `since_id` and `max_id`: if one of them is not set, or set to the default value, also the other correctly set will be ignored. If correctly set, tweets with the id within `[since_id, max_id]` will be saved (extremes included).
+A couple of words on advenced filters:
+
+- `since_id` and `max_id`: if one of them is not set, or set to the default value, also the other correctly set will be ignored. If correctly set, tweets with the id within `[since_id, max_id]` will be saved (extremes included).
+- Precedences among `since_id`, `max_id`, `since`, `until`, `since_time`, `until_time`:
+    - The definition of even just one parameter among `since`, or `until` causes the invalidation of `since_id` and `max_id` (they simply will not be considered).
+    - The definition of even just one parameter among `since_time` or `until_time` causes the invalidation of `since` and `until` (they simply will not be considered). The same reasoning will be applied to `since_id` and `max_id` when one among `since_time` or `until_time` is defined.
 
 **Utility methods**:
 - Getters and setters, among which four important methods are:
@@ -88,8 +97,16 @@ A couple of words on `since_id` and `max_id`: if one of them is not set, or set 
     - `get_video_preview()` to return the list of the videos' previews (operating mode 0)
     - `get_tweets_data()` to return the dictionary of tweets (operating mode 1)
     - `get_discussions_links()` to return the discussion links returned
-- `login()` to perform the login according to the values of `username` and `password`
-- `search()` according to the value of `query` (it takes care of handling the operating mode)
+- `login()` to perform the login according to the values of `username` and `password`. **Raises**:
+    - `ElementNotLoaded` exception when the username input is not loaded within timeout
+    - `ElementNotLoaded` exception when the button to click to go to the password input is not loaded within timeout
+    - `ElementNotLoeaded` exception when the password input is not loaded within timeout
+    - `ElementNotLoaded` exception when the button to click to go to the home page is not loaded within timeout
+- `search()` according to the value of `query` (it takes care of handling the operating mode). **Raises**:
+    - `ElementNotLoaded` exception when the searchbox is not loaded in time, probably the page could be stuck in rendering and exceeded the timeout
+    - `NoTweetsReturned` when the simplified search returns no tweets
+    - `NoTweetsReturned` when the complete search returns no tweets.
+- `go_home()` to go back to the homepage.
 - `clear_images()` to clear the list of the images' urls (operating mode 0)
 - `clear_video_previews()` to clear the list of the video previews' urls (operating mode 0)
 - `clear_tweets()` to clear the tweet dictionary (operating mode 1)
@@ -98,9 +115,9 @@ A couple of words on `since_id` and `max_id`: if one of them is not set, or set 
 
 Please, change and access the parameters with getters and setters.
 
+## Self Management of Exceptions
+- When the format of parameters `since` and `until` is not correct (i.e., is not `YYYY-MM-DD`), those parameters internally raises an exception, which will cause the reset to their default value (`none`) before proceding.
+
 ## Roadmap
 
-- [ ] Support for custom time digitation (standard time plus or minus epsilon)
-- [ ] Avoiding the search to crash when one div fails, just raise an exception
-- [ ] Adding support for advanced search in the search bar
-- [ ] Adding complete support for multiple searches without closing the browser
+- [ ] Support for custom digitation speed (standard time plus or minus epsilon)
