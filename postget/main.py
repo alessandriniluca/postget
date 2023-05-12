@@ -15,8 +15,8 @@ def parse_args():
     parser.add_argument('--max_id', type=int, metavar='', default = -1, help='id of the tweet to end the search to (default = -1 means not set. Notice that need to be defined also since_id). If one between since or until is set, since_id and max_id will not be considered')
     parser.add_argument('--until', type=str, metavar='YYYY-MM-DD', default='none', help='String of the date (excluded) until which the tweets will be returned. Format: YYYY-MM-DD, UTC time. Temporarily supported only for mode 1. If you set also since_time, or until_time, this will be ignored')
     parser.add_argument('--since', type=str, metavar='YYYY-MM-DD', default='none', help='String of the date (included) from which the tweets will be returned. Format: YYYY-MM-DD, UTC time. Temporarily supported only for mode 1. If you set also since_time, or until_time, this will be ignored')
-    parser.add_argument('--since_time', type=str, metavar='<timestamp>', default='none', help='String of the time from which the tweets will be returned. Format: timestamp, UTC time. Temporarily supported only for mode 1')
-    parser.add_argument('--until_time', type=str, metavar='<timestamp>', default='none', help='String of the time until which the tweets will be returned. Format: timestamp, UTC time. Temporarily supported only for mode 1')
+    parser.add_argument('--since_time', type=str, metavar='<timestamp>', default='none', help='String of the time from which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1')
+    parser.add_argument('--until_time', type=str, metavar='<timestamp>', default='none', help='String of the time until which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1')
     try:
         args = parser.parse_args()
         return args
