@@ -46,8 +46,8 @@ class Posts:
             max_id (int): id of the tweet to end the search to (default = -1 means not set. Notice that need to be defined also since_id). If one between since or until is set, since_id and max_id will not be considered
             since (str): String of the date (excluded) from which the tweets will be returned. Format: YYYY-MM-DD, UTC time. Temporarily supported only for mode 1. If you set also since_time, or until_time, this will be ignored
             until (str): String of the date (included) until which the tweets will be returned. Format: YYYY-MM-DD, UTC time. Temporarily supported only for mode 1. If you set also since_time, or until_time, this will be ignored
-            since_time (str): String of the time from which the tweets will be returned. Format: timestamp, UTC time. Temporarily supported only for mode 1
-            until_time (str): String of the time until which the tweets will be returned. Format: timestamp, UTC time. Temporarily supported only for mode 1
+            since_time (str): String of the time from which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1
+            until_time (str): String of the time until which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1
         """
         # Parameters initialization
         self.username = username
@@ -168,7 +168,7 @@ class Posts:
 
         self.input_query = self.query
 
-        # Higher precedence: if one between since_time and until_time is set, since and until will be ignored
+        # Higher precedence: if one between since_time and until_time is set, since and until will be ignored. N.B.: it is correct to use always "since:" and "until:" in both cases!
         if self.since_time != 'none' or self.until_time != 'none':
             if self.since_time != 'none':
                 self.input_query += f' since:{self.since_time}'
@@ -249,14 +249,42 @@ class Posts:
                 # get the <a>...</a> tag containing the string about the id of the discussion (composed of: <username>/status/<id>)
                 username_tweet_id = raw_tweet.find('a', {'class':"css-4rbku5 css-18t94o4 css-901oao r-14j79pv r-1loqt21 r-xoduu5 r-1q142lx r-1w6e6rj r-37j5jr r-a023e6 r-16dba41 r-9aw3ui r-rjixqe r-bcqeeo r-3s2u2q r-qvutc0"})
                 
-                # checking if case since_id and max_id are set, it if not in the range [since_id, max_id]), and if advanced queries for times are not set, then we will search by ids.
-                if self.since_id != -1 and self.max_id != -1 and (self.since == 'none' and self.until == 'none') and (self.since_time == 'none' and self.until_time == 'none'):
-                    
-                    # If the tweet is in the range [since_id, max_id]
-                    if int(username_tweet_id['href'].split('/')[3]) >= self.since_id and int(username_tweet_id['href'].split('/')[3]) <= self.max_id:
+                # checking if it is an actual tweet, or an empty div at the end of the tweets
+
+                if type(username_tweet_id) != type(None):
+                    # checking if case since_id and max_id are set, it if not in the range [since_id, max_id]), and if advanced queries for times are not set, then we will search by ids.
+                    if self.since_id != -1 and self.max_id != -1 and (self.since == 'none' and self.until == 'none') and (self.since_time == 'none' and self.until_time == 'none'):
+                        
+                        # If the tweet is in the range [since_id, max_id]
+                        if int(username_tweet_id['href'].split('/')[3]) >= self.since_id and int(username_tweet_id['href'].split('/')[3]) <= self.max_id:
+                            # using the discussion id as key of the dictionary, and checking if not already analyzed
+                            if username_tweet_id['href'] not in self.tweets.keys():
+
+                                # Retrieving username, tweet id, discussion link, and timestamp
+                                iso_timestamp = username_tweet_id.find('time')['datetime']
+                                dt = datetime.strptime(iso_timestamp,'%Y-%m-%dT%H:%M:%S.%fZ')
+                                timestamp = dt.strftime('%Y-%m-%d %H:%M:%S')
+                                discussion_link = f'https://twitter.com{username_tweet_id["href"]}'
+
+                                # append username, tweet id, to the dictionary, and initializing the list of links to images and video preview
+                                self.tweets[username_tweet_id['href']] = {"username": username_tweet_id['href'].split('/')[1], "tweet_id": username_tweet_id['href'].split('/')[3], "discussion_link": discussion_link, "iso_8601_timestamp": iso_timestamp, "datetime_timestamp": timestamp, "images": [], "video_preview": []}
+
+                                # Retrieving images and video preview links
+                                images = raw_tweet.find_all('img')
+                                video_tags = raw_tweet.find_all('video')
+                                for image in images:
+                                    if re.match(ACTUAL_IMAGE_PATTERN, image['src']):
+                                        self.tweets[username_tweet_id['href']]['images'].append(image['src'])
+                                for video_tag in video_tags:
+                                    if re.match(ACTUAL_VIDEO_PREVIEW_PATTERN, video_tag['poster']):
+                                        self.tweets[username_tweet_id['href']]['video_preview'].append(video_tag['poster'])
+                        else:
+                            print(f'[postget]: Tweet {username_tweet_id["href"].split("/")[3]} not in the range [{self.since_id}, {self.max_id}]. Skipping it')
+                    else:
+                        # In this case, since_id and max_id are not set, so we can analyze all the tweets
                         # using the discussion id as key of the dictionary, and checking if not already analyzed
                         if username_tweet_id['href'] not in self.tweets.keys():
-
+                            
                             # Retrieving username, tweet id, discussion link, and timestamp
                             iso_timestamp = username_tweet_id.find('time')['datetime']
                             dt = datetime.strptime(iso_timestamp,'%Y-%m-%dT%H:%M:%S.%fZ')
@@ -264,7 +292,7 @@ class Posts:
                             discussion_link = f'https://twitter.com{username_tweet_id["href"]}'
 
                             # append username, tweet id, to the dictionary, and initializing the list of links to images and video preview
-                            self.tweets[username_tweet_id['href']] = {"username": username_tweet_id['href'].split('/')[1], "tweet_id": username_tweet_id['href'].split('/')[3], "discussion_link": discussion_link, "iso_8601_timestamp": iso_timestamp, "datetime_timestamp": timestamp, "images": [], "video_preview": []}
+                            self.tweets[username_tweet_id['href']] = {"username": username_tweet_id['href'].split('/')[1], "tweet_id": username_tweet_id['href'].split('/')[3],"discussion_link": discussion_link, "iso_8601_timestamp": iso_timestamp, "datetime_timestamp": timestamp, "images": [], "video_preview": []}
 
                             # Retrieving images and video preview links
                             images = raw_tweet.find_all('img')
@@ -275,31 +303,6 @@ class Posts:
                             for video_tag in video_tags:
                                 if re.match(ACTUAL_VIDEO_PREVIEW_PATTERN, video_tag['poster']):
                                     self.tweets[username_tweet_id['href']]['video_preview'].append(video_tag['poster'])
-                    else:
-                        print(f'[postget]: Tweet {username_tweet_id["href"].split("/")[3]} not in the range [{self.since_id}, {self.max_id}]. Skipping it')
-                else:
-                    # In this case, since_id and max_id are not set, so we can analyze all the tweets
-                    # using the discussion id as key of the dictionary, and checking if not already analyzed
-                    if username_tweet_id['href'] not in self.tweets.keys():
-                        
-                        # Retrieving username, tweet id, discussion link, and timestamp
-                        iso_timestamp = username_tweet_id.find('time')['datetime']
-                        dt = datetime.strptime(iso_timestamp,'%Y-%m-%dT%H:%M:%S.%fZ')
-                        timestamp = dt.strftime('%Y-%m-%d %H:%M:%S')
-                        discussion_link = f'https://twitter.com{username_tweet_id["href"]}'
-
-                        # append username, tweet id, to the dictionary, and initializing the list of links to images and video preview
-                        self.tweets[username_tweet_id['href']] = {"username": username_tweet_id['href'].split('/')[1], "tweet_id": username_tweet_id['href'].split('/')[3],"discussion_link": discussion_link, "iso_8601_timestamp": iso_timestamp, "datetime_timestamp": timestamp, "images": [], "video_preview": []}
-
-                        # Retrieving images and video preview links
-                        images = raw_tweet.find_all('img')
-                        video_tags = raw_tweet.find_all('video')
-                        for image in images:
-                            if re.match(ACTUAL_IMAGE_PATTERN, image['src']):
-                                self.tweets[username_tweet_id['href']]['images'].append(image['src'])
-                        for video_tag in video_tags:
-                            if re.match(ACTUAL_VIDEO_PREVIEW_PATTERN, video_tag['poster']):
-                                self.tweets[username_tweet_id['href']]['video_preview'].append(video_tag['poster'])
             if count == self.num_scrolls:
                 break
            
