@@ -31,7 +31,7 @@ ACTUAL_VIDEO_PREVIEW_PATTERN = '^https:\/\/pbs\.twimg\.com\/ext_tw_video_thumb.*
 TARGET_URL = 'https://www.twitter.com/login'
 
 class Posts:
-    def __init__(self, username: str, password: str, query: str, wait_scroll_base: int = 15, wait_scroll_epsilon :float = 5, num_scrolls: int = 10, mode: int = 0, since_id: int = -1, max_id: int = -1, since: str = 'none', until: str = 'none', since_time: str = 'none', until_time: str = 'none'):
+    def __init__(self, username: str, password: str, query: str, wait_scroll_base: int = 15, wait_scroll_epsilon :float = 5, num_scrolls: int = 10, mode: int = 0, since_id: int = -1, max_id: int = -1, since: str = 'none', until: str = 'none', since_time: str = 'none', until_time: str = 'none', headless: bool = False):
         """Class initializator
 
         Args:
@@ -81,6 +81,10 @@ class Posts:
         # Initialization of the chromedriver
         self.chrome_options = Options()
         self.chrome_options.add_experimental_option("detach", True)
+        if headless:
+            self.chrome_options.headless = True
+            self.chrome_options.add_argument("--window-size=1920,1080")
+
         self.driver=webdriver.Chrome(PATH, chrome_options=self.chrome_options)
         self.driver.maximize_window()
         self.wait = WebDriverWait(self.driver, 30)

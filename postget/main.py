@@ -17,6 +17,7 @@ def parse_args():
     parser.add_argument('--since', type=str, metavar='YYYY-MM-DD', default='none', help='String of the date (included) from which the tweets will be returned. Format: YYYY-MM-DD, UTC time. Temporarily supported only for mode 1. If you set also since_time, or until_time, this will be ignored')
     parser.add_argument('--since_time', type=str, metavar='<timestamp>', default='none', help='String of the time from which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1')
     parser.add_argument('--until_time', type=str, metavar='<timestamp>', default='none', help='String of the time until which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1')
+    parser.add_argument('--headless', action='store_true', help='Call with this to run the browser in headless mode')
     try:
         args = parser.parse_args()
         return args
@@ -28,7 +29,10 @@ def main():
     args = parse_args()
 
     # Initialization
-    my_object = Posts(args.username, args.password, args.query, args.wait_scroll_base, args.wait_scroll_epsilon, args.num_scrolls, args.mode, args.since_id, args.max_id, args.since, args.until, args.since_time, args.until_time)
+    if args.headless:
+        my_object = Posts(args.username, args.password, args.query, args.wait_scroll_base, args.wait_scroll_epsilon, args.num_scrolls, args.mode, args.since_id, args.max_id, args.since, args.until, args.since_time, args.until_time, headless=True)
+    else:
+        my_object = Posts(args.username, args.password, args.query, args.wait_scroll_base, args.wait_scroll_epsilon, args.num_scrolls, args.mode, args.since_id, args.max_id, args.since, args.until, args.since_time, args.until_time)
 
     # Run
     try:
