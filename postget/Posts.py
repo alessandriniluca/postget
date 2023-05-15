@@ -7,6 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 import re
+import shutil
 import random
 from selenium.webdriver.chrome.options import Options
 from datetime import datetime
@@ -18,9 +19,6 @@ ACTUAL_IMAGE_PATTERN = '^https:\/\/pbs\.twimg\.com\/media.*'
 # Regex to match date in 'until' and 'since' parameters. Notice that it does NOT check the validity of the date according to the month (e.g., one could declare) 2023-02-31.
 DATE_SINCE_UNTIL = r'^(?!0000)[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$'
 
-# Path to the chromedriver
-PATH = '/usr/bin/chromedriver'
-
 # Vertical size of the scroll. This is used to scroll down the page
 Y = 500
 
@@ -31,7 +29,7 @@ ACTUAL_VIDEO_PREVIEW_PATTERN = '^https:\/\/pbs\.twimg\.com\/ext_tw_video_thumb.*
 TARGET_URL = 'https://www.twitter.com/login'
 
 class Posts:
-    def __init__(self, username: str, password: str, query: str, wait_scroll_base: int = 15, wait_scroll_epsilon :float = 5, num_scrolls: int = 10, mode: int = 0, since_id: int = -1, max_id: int = -1, since: str = 'none', until: str = 'none', since_time: str = 'none', until_time: str = 'none', headless: bool = False):
+    def __init__(self, username: str, password: str, query: str, wait_scroll_base: int = 15, wait_scroll_epsilon :float = 5, num_scrolls: int = 10, mode: int = 0, since_id: int = -1, max_id: int = -1, since: str = 'none', until: str = 'none', since_time: str = 'none', until_time: str = 'none', headless: bool = False, chromedriver: str = 'none'):
         """Class initializator
 
         Args:
@@ -84,8 +82,10 @@ class Posts:
         if headless:
             self.chrome_options.headless = True
             self.chrome_options.add_argument("--window-size=1920,1080")
-
-        self.driver=webdriver.Chrome(PATH, chrome_options=self.chrome_options)
+        if chromedriver != 'none':
+            self.driver=webdriver.Chrome(chromedriver, chrome_options=self.chrome_options)
+        else:
+            self.driver=webdriver.Chrome(shutil.which('chromedriver'), chrome_options=self.chrome_options)
         self.driver.maximize_window()
         self.wait = WebDriverWait(self.driver, 30)
         self.driver.get(TARGET_URL)
