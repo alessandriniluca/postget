@@ -11,7 +11,7 @@ import shutil
 import random
 from selenium.webdriver.chrome.options import Options
 from datetime import datetime
-from postget.exceptions.exceptions import WrongDateString, NoTweetsReturned, ElementNotLoaded
+from .exceptions.exceptions import WrongDateString, NoTweetsReturned, ElementNotLoaded
 
 # Regex to match the image link
 ACTUAL_IMAGE_PATTERN = '^https:\/\/pbs\.twimg\.com\/media.*'

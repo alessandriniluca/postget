@@ -6,7 +6,7 @@ setup(
     description='Posts getter',
     author='',
     author_email='',
-    packages=['postget'],
+    packages=['postget', 'postget.exceptions'],
     entry_points={
         'console_scripts': [
             'postget=postget.main:main'
