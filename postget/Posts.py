@@ -7,6 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 import re
+import os
 import shutil
 import random
 from selenium.webdriver.chrome.options import Options
@@ -189,7 +190,15 @@ class Posts:
 
                 searchbox = self.wait.until(EC.visibility_of_element_located((By.XPATH, "//input[@aria-label='Search query']")))
             else:
-                raise ElementNotLoaded('Searchbox not loaded in time.')
+                page_source = self.driver.page_source
+                soup = BeautifulSoup(page_source, 'html.parser')
+                filename = 'postget_error_soupfile.txt'
+                cwd = os.getcwd()
+                file_path = os.path.join(cwd, filename)
+
+                with open(file_path, 'w') as f:
+                    f.write(soup.prettify())
+                raise ElementNotLoaded(f'Searchbox not loaded in time. Check {file_path} for more details.')
         # //TODO: clear query, the second query changes location to be opened
 
         time.sleep(0.7)
