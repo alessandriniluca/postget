@@ -18,6 +18,7 @@ def parse_args():
     parser.add_argument('--since_time', type=str, metavar='<timestamp>', default='none', help='String of the time from which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1')
     parser.add_argument('--until_time', type=str, metavar='<timestamp>', default='none', help='String of the time until which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1')
     parser.add_argument('--headless', action='store_true', help='Call with this to run the browser in headless mode')
+    parser.add_argument('--chromedriver', type=str, metavar='/path/to/chromedriver', default='none', help='Path of the chromedriver. If not set, the package will try to automatically retrieve it.')
     try:
         args = parser.parse_args()
         return args
