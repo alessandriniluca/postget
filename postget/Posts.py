@@ -29,13 +29,14 @@ ACTUAL_VIDEO_PREVIEW_PATTERN = '^https:\/\/pbs\.twimg\.com\/ext_tw_video_thumb.*
 TARGET_URL = 'https://www.twitter.com/login'
 
 class Posts:
-    def __init__(self, username: str, password: str, query: str, wait_scroll_base: int = 15, wait_scroll_epsilon :float = 5, num_scrolls: int = 10, mode: int = 0, since_id: int = -1, max_id: int = -1, since: str = 'none', until: str = 'none', since_time: str = 'none', until_time: str = 'none', headless: bool = False, chromedriver: str = 'none'):
+    def __init__(self, username: str, password: str, query: str, email_address: str, wait_scroll_base: int = 15, wait_scroll_epsilon :float = 5, num_scrolls: int = 10, mode: int = 0, since_id: int = -1, max_id: int = -1, since: str = 'none', until: str = 'none', since_time: str = 'none', until_time: str = 'none', headless: bool = False, chromedriver: str = 'none'):
         """Class initializator
 
         Args:
             username (str): Username that will be used to access the Twitter account
             password (str): Password of the Username that will be used access the Twitter account
             query (str): Query to be searched on Twitter
+            email_address (str): Email address of the account. Will be used in case twitter asks to enter the mail for confirmation purposes.
             wait_scroll_base (int): base time to wait between one scroll and the subsequent (expressed in number of seconds, default 15)
             wait_scroll_epsilon (float): random time to be added to the base time to wait between one scroll and the subsequent, in order to avoid being detected as a bot (expressed in number of seconds, default 5)
             num_scrolls (int): number of scrolls to be performed, default 10
@@ -61,6 +62,7 @@ class Posts:
         self.since = since
         self.since_time = since_time
         self.until_time = until_time
+        self.email_address = email_address
 
         try:
             self.check_date()
@@ -164,7 +166,30 @@ class Posts:
         try:
             searchbox = self.wait.until(EC.visibility_of_element_located((By.XPATH, "//input[@aria-label='Search query']")))
         except TimeoutException:
-            raise ElementNotLoaded('Searchbox not loaded in time.')
+
+            # Could be that twitter is asking to enter the mail address:
+            page_source = self.driver.page_source
+            soup = BeautifulSoup(page_source, 'html.parser')
+            if 'Verify your identity by entering the email address' in soup.get_text():
+
+                print('[postget]: twitter is asking to verify the identity by entering the email address')
+                try:
+                    email_confirmation_input = self.wait.until(EC.visibility_of_element_located((By.NAME, "text")))
+                except TimeoutException:
+                    raise ElementNotLoaded('Email Confirmation input not loaded')
+                print('[postget]: Email Confirmation input loaded, starting input email.')
+                for character in self.email_address:
+                    email_confirmation_input.send_keys(character)
+                    time.sleep(0.3)
+                try:
+                    button = self.wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[1]/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[2]/div/div/div/div/div")))
+                except TimeoutException:
+                    raise ElementNotLoaded('Trying to bypass email confirmation, but button \'next\' did not load')
+                button.click()
+
+                searchbox = self.wait.until(EC.visibility_of_element_located((By.XPATH, "//input[@aria-label='Search query']")))
+            else:
+                raise ElementNotLoaded('Searchbox not loaded in time.')
         # //TODO: clear query, the second query changes location to be opened
 
         time.sleep(0.7)

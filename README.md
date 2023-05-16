@@ -82,6 +82,7 @@ Import the class `Posts`. Main **parameters in the initialization**:
 - `until_time` (`str`): String of the time until which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode `1`
 - `headless` (`bool` if imported, just type `--headles` if called from command line): If specified, runs the browser in headless mode
 - `chromedriver` (`str`): custom path to the chromedriver. if not specified, the code will try to find automatically the path of `chromedriver`
+- `mail` (`str`): email of the account, required since sometimes could be asked to insert it to verify the account
 
 A couple of words on advenced filters:
 
