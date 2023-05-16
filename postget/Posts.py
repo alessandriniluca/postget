@@ -85,6 +85,7 @@ class Posts:
         if headless:
             self.chrome_options.headless = True
             self.chrome_options.add_argument("--window-size=1920,1080")
+            self.chrome_options.add_argument("--enable-javascript")
         if chromedriver != 'none':
             self.driver=webdriver.Chrome(chromedriver, chrome_options=self.chrome_options)
         else:
