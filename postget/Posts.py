@@ -30,7 +30,7 @@ ACTUAL_VIDEO_PREVIEW_PATTERN = '^https:\/\/pbs\.twimg\.com\/ext_tw_video_thumb.*
 TARGET_URL = 'https://www.twitter.com/login'
 
 class Posts:
-    def __init__(self, username: str, password: str, query: str, email_address: str, wait_scroll_base: int = 15, wait_scroll_epsilon :float = 5, num_scrolls: int = 10, mode: int = 0, since_id: int = -1, max_id: int = -1, since: str = 'none', until: str = 'none', since_time: str = 'none', until_time: str = 'none', headless: bool = False, chromedriver: str = 'none'):
+    def __init__(self, username: str, password: str, query: str, email_address: str, wait_scroll_base: int = 15, wait_scroll_epsilon :float = 5, num_scrolls: int = 10, mode: int = 0, since_id: int = -1, max_id: int = -1, since: str = 'none', until: str = 'none', since_time: str = 'none', until_time: str = 'none', headless: bool = False, chromedriver: str = 'none', root: bool=False):
         """Class initializator
 
         Args:
@@ -86,6 +86,10 @@ class Posts:
             self.chrome_options.headless = True
             self.chrome_options.add_argument("--window-size=1920,1080")
             self.chrome_options.add_argument("--enable-javascript")
+        if root:
+            # If you try to run chromium as root, an error is shown displayng that reuquires --no-sandbox option to be set
+            self.chrome_options.add_argument("--no-sandbox")
+            print('[postget]: Running in root mode. This is not recommended for security reasons, disabling sandbox to allow run chromium.')
         if chromedriver != 'none':
             self.driver=webdriver.Chrome(chromedriver, chrome_options=self.chrome_options)
         else:
