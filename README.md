@@ -83,6 +83,7 @@ Import the class `Posts`. Main **parameters in the initialization**:
 - `headless` (`bool` if imported, just type `--headles` if called from command line): If specified, runs the browser in headless mode
 - `chromedriver` (`str`): custom path to the chromedriver. if not specified, the code will try to find automatically the path of `chromedriver`
 - `mail` (`str`): email of the account, required since sometimes could be asked to insert it to verify the account
+- `root` (`bool` if imported, just type `--root` if called from command line): If specified, adds the option `--no-sandbox` to the chrome options, needed to be runned in root mode. Please notice that running in root mode is **not** safe for security reasons.
 
 A couple of words on advenced filters:
 

@@ -20,6 +20,7 @@ def parse_args():
     parser.add_argument('--until_time', type=str, metavar='<timestamp>', default='none', help='String of the time until which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1')
     parser.add_argument('--headless', action='store_true', help='Call with this to run the browser in headless mode')
     parser.add_argument('--chromedriver', type=str, metavar='/path/to/chromedriver', default='none', help='Path of the chromedriver. If not set, the package will try to automatically retrieve it.')
+    parser.add_argument('--root', action='store_true', help='Call with this if you are running in root mode')
     try:
         args = parser.parse_args()
         return args
@@ -32,9 +33,15 @@ def main():
 
     # Initialization
     if args.headless:
-        my_object = Posts(args.username, args.password, args.query, args.mail, args.wait_scroll_base, args.wait_scroll_epsilon, args.num_scrolls, args.mode, args.since_id, args.max_id, args.since, args.until, args.since_time, args.until_time, headless=True)
+        if args.root:
+            my_object = Posts(args.username, args.password, args.query, args.mail, args.wait_scroll_base, args.wait_scroll_epsilon, args.num_scrolls, args.mode, args.since_id, args.max_id, args.since, args.until, args.since_time, args.until_time, headless=True, root = True)
+        else:
+            my_object = Posts(args.username, args.password, args.query, args.mail, args.wait_scroll_base, args.wait_scroll_epsilon, args.num_scrolls, args.mode, args.since_id, args.max_id, args.since, args.until, args.since_time, args.until_time, headless=True)
     else:
-        my_object = Posts(args.username, args.password, args.query, args.mail, args.wait_scroll_base, args.wait_scroll_epsilon, args.num_scrolls, args.mode, args.since_id, args.max_id, args.since, args.until, args.since_time, args.until_time)
+        if args.root:
+            my_object = Posts(args.username, args.password, args.query, args.mail, args.wait_scroll_base, args.wait_scroll_epsilon, args.num_scrolls, args.mode, args.since_id, args.max_id, args.since, args.until, args.since_time, args.until_time, root=True)
+        else:
+            my_object = Posts(args.username, args.password, args.query, args.mail, args.wait_scroll_base, args.wait_scroll_epsilon, args.num_scrolls, args.mode, args.since_id, args.max_id, args.since, args.until, args.since_time, args.until_time)
 
     # Run
     try:
