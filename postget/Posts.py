@@ -50,6 +50,7 @@ class Posts:
             until_time (str): String of the time until which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1
         """
         
+        print("[postget]: developed by")
         print("██╗░░░░░░█████╗░███╗░░██╗██████╗░░█████╗░███╗░░░███╗██╗██╗░░██╗")
         print("██║░░░░░██╔══██╗████╗░██║██╔══██╗██╔══██╗████╗░████║██║╚██╗██╔╝")
         print("██║░░░░░███████║██╔██╗██║██║░░██║██║░░██║██╔████╔██║██║░╚███╔╝░")
