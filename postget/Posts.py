@@ -49,6 +49,14 @@ class Posts:
             since_time (str): String of the time from which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1
             until_time (str): String of the time until which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1
         """
+        
+        print("██╗░░░░░░█████╗░███╗░░██╗██████╗░░█████╗░███╗░░░███╗██╗██╗░░██╗")
+        print("██║░░░░░██╔══██╗████╗░██║██╔══██╗██╔══██╗████╗░████║██║╚██╗██╔╝")
+        print("██║░░░░░███████║██╔██╗██║██║░░██║██║░░██║██╔████╔██║██║░╚███╔╝░")
+        print("██║░░░░░██╔══██║██║╚████║██║░░██║██║░░██║██║╚██╔╝██║██║░██╔██╗░")
+        print("███████╗██║░░██║██║░╚███║██████╔╝╚█████╔╝██║░╚═╝░██║██║██╔╝╚██╗")
+        print("╚══════╝╚═╝░░╚═╝╚═╝░░╚══╝╚═════╝░░╚════╝░╚═╝░░░░░╚═╝╚═╝╚═╝░░╚═╝")
+        
         # Parameters initialization
         self.username = username
         self.password = password
