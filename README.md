@@ -15,6 +15,10 @@ sudo pacman -S chromium
 ```
 The path of `chromedriver` is found automatically. If your operating system for whatever reason gives it another name, pass it through the parameter `chromedriver`.
 
+Tested on:
+- [chromium](https://archlinux.org/packages/extra/x86_64/chromium/) (114.0.5735.45), **dark theme** (N.B.: the theme is important, since the loaded css will differ between light and dark)
+- [chromedriver](https://aur.archlinux.org/packages/chromedriver) (same version of chromium)
+
 ### Virtual Environment
 Creation of a virtual environment is **highly recommended**. In the home folder of a linux system:
 ```
@@ -122,3 +126,4 @@ Please, change and access the parameters with getters and setters.
 ## Roadmap
 
 - [ ] Support for custom digitation speed (standard time plus or minus epsilon)
+- [ ] Support for both dark and light themes
