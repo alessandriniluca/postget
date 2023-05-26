@@ -13,10 +13,7 @@ In Arch Linux, to install it, it is enough to type in terminal:
 ```
 sudo pacman -S chromium
 ```
-Then, you need to put the path of the chromedriver as value `PATH` inside the file `./postget/Posts.py`. You can find its path in linux by typing in terminal:
-```
-which chromedriver
-```
+The path of `chromedriver` is found automatically. If your operating system for whatever reason gives it another name, pass it through the parameter `chromedriver`.
 
 ### Virtual Environment
 Creation of a virtual environment is **highly recommended**. In the home folder of a linux system:
@@ -83,6 +80,10 @@ Import the class `Posts`. Main **parameters in the initialization**:
 - `until` (`str`): String of the date (included) until which the tweets will be returned. Format: `YYYY-MM-DD`, UTC time. Temporarily supported only for mode `1`. If you set also since_time, or until_time, this will be ignored. Wrong formats will be ignored
 - `since_time` (`str`): String of the time from which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode `1`
 - `until_time` (`str`): String of the time until which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode `1`
+- `headless` (`bool` if imported, just type `--headles` if called from command line): If specified, runs the browser in headless mode
+- `chromedriver` (`str`): custom path to the chromedriver. if not specified, the code will try to find automatically the path of `chromedriver`
+- `mail` (`str`): email of the account, required since sometimes could be asked to insert it to verify the account
+- `root` (`bool` if imported, just type `--root` if called from command line): If specified, adds the option `--no-sandbox` to the chrome options, needed to be runned in root mode. Please notice that running in root mode is **not** safe for security reasons.
 
 A couple of words on advenced filters:
 
