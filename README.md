@@ -1,19 +1,23 @@
 # postget
 ## Intent
-<u>**This package is intended EXCLUSIVELY for demonstrative purposes. The author has no responsibility about the use you will do and the consequences of it. Keep in mind that running this code is forbidden, is just a demonstration about how scraping works.**</u>
+<u>**This package is intended EXCLUSIVELY for demonstrative purposes. The author has no responsibility about the use you will do and the consequences of it. Keep in mind that running this code is forbidden, is just a demonstration about how scraping works. If you decide to run it anyway, you will assume all the responsibilities about the consequence it will have.**</u>
 
 This package wants to retrieve images and video preview from tweets, without using APIs.
 
 ## Setup
 
 ### Chrome driver
-Notice that this is **required** for this package to work. To install it, it is enough to install chromium.
+Notice that this is **required** for this package to work. To install it, it is enough to install chromium and the chromedriver.
 
-In Arch Linux, to install it, it is enough to type in terminal:
+As an example, in Arch Linux, to install chromium, it is enough to type in terminal:
 ```
 sudo pacman -S chromium
 ```
 The path of `chromedriver` is found automatically. If your operating system for whatever reason gives it another name, pass it through the parameter `chromedriver`.
+
+Tested on:
+- [chromium](https://archlinux.org/packages/extra/x86_64/chromium/) (114.0.5735.45), **DARK THEME** (N.B.: the theme is important, since the loaded css will differ between light and dark. Future developments will add support for both)
+- [chromedriver](https://aur.archlinux.org/packages/chromedriver) (same version of chromium)
 
 ### Virtual Environment
 Creation of a virtual environment is **highly recommended**. In the home folder of a linux system:
@@ -36,9 +40,15 @@ To test the installation, try to type (inside the virtual environment):
 ```
 postget --help
 ```
-If the response is correct, then it is working.
+If the response is correct and show the output of a help command, then it is working.
 
 ## Usage
+
+### Example
+An example of command is (in the following a detailed explanation is provided):
+```
+postget --username '<your_username>' --password '<your_password>' --query '<query_to_be_performed>' --mail '<mail_of_the_account>' --num_scrolls 10  --wait_scroll_base 3 --wait_scroll_epsilon 1  --mode 1
+```
 
 ### Operating mode
 
@@ -122,3 +132,4 @@ Please, change and access the parameters with getters and setters.
 ## Roadmap
 
 - [ ] Support for custom digitation speed (standard time plus or minus epsilon)
+- [ ] Support for both dark and light themes

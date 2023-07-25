@@ -299,7 +299,7 @@ class Posts:
 
             for raw_tweet in self.raw_tweets:
                 # get the <a>...</a> tag containing the string about the id of the discussion (composed of: <username>/status/<id>)
-                username_tweet_id = raw_tweet.find('a', {'class':"css-4rbku5 css-18t94o4 css-901oao r-14j79pv r-1loqt21 r-xoduu5 r-1q142lx r-1w6e6rj r-37j5jr r-a023e6 r-16dba41 r-9aw3ui r-rjixqe r-bcqeeo r-3s2u2q r-qvutc0"})
+                username_tweet_id = raw_tweet.find('a', {'class':"css-4rbku5 css-18t94o4 css-901oao r-1bwzh9t r-1loqt21 r-xoduu5 r-1q142lx r-1w6e6rj r-37j5jr r-a023e6 r-16dba41 r-9aw3ui r-rjixqe r-bcqeeo r-3s2u2q r-qvutc0"})
                 
                 # checking if it is an actual tweet, or an empty div at the end of the tweets
 
