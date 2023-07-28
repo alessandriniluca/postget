@@ -47,7 +47,7 @@ If the response is correct and show the output of a help command, then it is wor
 ### Example
 An example of command is (in the following a detailed explanation is provided):
 ```
-postget --username '<your_username>' --password '<your_password>' --query '<query_to_be_performed>' --mail '<mail_of_the_account>' --num_scrolls 10  --wait_scroll_base 3 --wait_scroll_epsilon 1  --mode 1
+postget --username '<your_username>' --password '<your_password>' --query '<query_to_be_performed>' --email_address '<mail_of_the_account>' --num_scrolls 10  --wait_scroll_base 3 --wait_scroll_epsilon 1  --mode 1
 ```
 
 ### Operating mode
@@ -92,7 +92,7 @@ Import the class `Posts`. Main **parameters in the initialization**:
 - `until_time` (`str`): String of the time until which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode `1`
 - `headless` (`bool` if imported, just type `--headles` if called from command line): If specified, runs the browser in headless mode
 - `chromedriver` (`str`): custom path to the chromedriver. if not specified, the code will try to find automatically the path of `chromedriver`
-- `mail` (`str`): email of the account, required since sometimes could be asked to insert it to verify the account
+- `email_address` (`str`): email of the account, required since sometimes could be asked to insert it to verify the account
 - `root` (`bool` if imported, just type `--root` if called from command line): If specified, adds the option `--no-sandbox` to the chrome options, needed to be runned in root mode. Please notice that running in root mode is **not** safe for security reasons.
 
 A couple of words on advenced filters:
