@@ -1,12 +1,28 @@
 # postget
+## Sections
+- [Intent](#intent)
+- [Setup](#setup)
+    - [Chromedriver](#chromedriver)
+    - [Virtual Environment](#virtual-environment)
+- [Usage](#usage)
+    - [Example - CLI](#example---cli)
+    - [Example - Import in another project](#example---import-in-another-project)
+    - [Operating Mode](#operating-mode)
+    - [Command Line](#command-line)
+    - [Import this in another project](#import-this-in-another-project)
+- [Self management of exceptions](#self-management-of-exceptions)
+- [Roadmap](#roadmap)
+- [Changelog](#changelog)
+
+
 ## Intent
 <u>**This package is intended EXCLUSIVELY for demonstrative purposes. The author has no responsibility about the use you will do and the consequences of it. Keep in mind that running this code is forbidden, is just a demonstration about how scraping works. If you decide to run it anyway, you will assume all the responsibilities about the consequence it will have.**</u>
 
-This package wants to retrieve images and video preview from tweets, without using APIs.
+This package wants to retrieve tweets text, images links and video preview links from tweets, without using APIs.
 
 ## Setup
 
-### Chrome driver
+### Chromedriver
 Notice that this is **required** for this package to work. To install it, it is enough to install chromium and the chromedriver.
 
 As an example, in Arch Linux, to install chromium, it is enough to type in terminal:
@@ -44,10 +60,46 @@ If the response is correct and show the output of a help command, then it is wor
 
 ## Usage
 
-### Example
+### Example - CLI
 An example of command is (in the following a detailed explanation is provided):
 ```
 postget --username '<your_username>' --password '<your_password>' --query '<query_to_be_performed>' --email_address '<mail_of_the_account>' --num_scrolls 10  --wait_scroll_base 3 --wait_scroll_epsilon 1  --mode 1
+```
+### Example - Import in another project
+As a reference for import (for parameters meaning see the [related section](#import-this-in-another-project)), after having installed it:
+```
+from postget.Posts import Posts
+from postget.exceptions.exceptions import *
+
+def main():
+    twitter_getter = Posts(username='<USERNAME>', password='<PASSWORD>', email_address='<MAIL>', query='', num_scrolls=2, mode=1, wait_scroll_base = 4, wait_scroll_epsilon = 2)
+    try:
+        twitter_getter.login()
+    except ElementNotLoaded as e:
+        raise e
+
+
+    print("Setting query in the object")
+    twitter_getter.set_query('test')
+
+    print("Start Search, this will input the query and perform the scroll with the selected mode")
+    try:
+	    twitter_getter.search()
+    except ElementNotLoaded as e:
+	    raise e
+    except NoTweetsReturned as e:
+	    print(e)
+	
+    print("Printing returned results and going home")
+    twitter_getter.print_results()
+    twitter_getter.go_home()
+    print("Clearing Results")
+    twitter_getter.clear_tweets()
+    print("quitting browser")
+    twitter_getter.quit_browser()
+
+if __name__=='__main__':
+    main()
 ```
 
 ### Operating mode
@@ -133,3 +185,8 @@ Please, change and access the parameters with getters and setters.
 
 - [ ] Support for custom digitation speed (standard time plus or minus epsilon)
 - [ ] Support for both dark and light themes
+
+## Changelog
+### 1.1.2
+- Fixed naming inconsistency for the CLI interface. This did not cause any bug, but has been changed for code consistency
+- Added support for tweet text retrieval
