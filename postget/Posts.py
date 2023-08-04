@@ -316,8 +316,21 @@ class Posts:
                                 timestamp = dt.strftime('%Y-%m-%d %H:%M:%S')
                                 discussion_link = f'https://twitter.com{username_tweet_id["href"]}'
 
-                                # append username, tweet id, to the dictionary, and initializing the list of links to images and video preview
-                                self.tweets[username_tweet_id['href']] = {"username": username_tweet_id['href'].split('/')[1], "tweet_id": username_tweet_id['href'].split('/')[3], "discussion_link": discussion_link, "iso_8601_timestamp": iso_timestamp, "datetime_timestamp": timestamp, "images": [], "video_preview": []}
+                                # Retrieving tweet text
+                                tweet_text = raw_tweet.find('div', {'data-testid': 'tweetText'})
+                                # if tweet_text is not None. If tweet_text is None, output None
+                                if tweet_text:
+                                    tweet_text = tweet_text.get_text()
+
+                                # append username, tweet id, tweet text, to the dictionary, and initializing the list of links to images and video preview
+                                self.tweets[username_tweet_id['href']] = {"username": username_tweet_id['href'].split('/')[1], 
+                                                                          "tweet_id": username_tweet_id['href'].split('/')[3], 
+                                                                          "tweet_text": tweet_text, 
+                                                                          "discussion_link": discussion_link, 
+                                                                          "iso_8601_timestamp": iso_timestamp, 
+                                                                          "datetime_timestamp": timestamp, 
+                                                                          "images": [], 
+                                                                          "video_preview": []}
 
                                 # Retrieving images and video preview links
                                 images = raw_tweet.find_all('img')
@@ -341,8 +354,21 @@ class Posts:
                             timestamp = dt.strftime('%Y-%m-%d %H:%M:%S')
                             discussion_link = f'https://twitter.com{username_tweet_id["href"]}'
 
-                            # append username, tweet id, to the dictionary, and initializing the list of links to images and video preview
-                            self.tweets[username_tweet_id['href']] = {"username": username_tweet_id['href'].split('/')[1], "tweet_id": username_tweet_id['href'].split('/')[3],"discussion_link": discussion_link, "iso_8601_timestamp": iso_timestamp, "datetime_timestamp": timestamp, "images": [], "video_preview": []}
+                            # Retrieving tweet text
+                            tweet_text = raw_tweet.find('div', {'data-testid': 'tweetText'})
+                            # if tweet_text is not None. If tweet_text is None, output None
+                            if tweet_text:
+                                tweet_text = tweet_text.get_text()
+
+                            # append username, tweet id, tweet text, to the dictionary, and initializing the list of links to images and video preview
+                            self.tweets[username_tweet_id['href']] = {"username": username_tweet_id['href'].split('/')[1], 
+                                                                      "tweet_id": username_tweet_id['href'].split('/')[3], 
+                                                                      "tweet_text": tweet_text, 
+                                                                      "discussion_link": discussion_link, 
+                                                                      "iso_8601_timestamp": iso_timestamp, 
+                                                                      "datetime_timestamp": timestamp, 
+                                                                      "images": [], 
+                                                                      "video_preview": []}
 
                             # Retrieving images and video preview links
                             images = raw_tweet.find_all('img')
