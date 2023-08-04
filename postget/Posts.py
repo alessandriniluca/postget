@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
 import time
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -49,7 +49,6 @@ class Posts:
             since_time (str): String of the time from which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1
             until_time (str): String of the time until which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1
         """
-        
         print("[postget]: You or your program started Postget, powered by")
         print("██╗░░░░░░█████╗░███╗░░██╗██████╗░░█████╗░███╗░░░███╗██╗██╗░░██╗")
         print("██║░░░░░██╔══██╗████╗░██║██╔══██╗██╔══██╗████╗░████║██║╚██╗██╔╝")
@@ -292,7 +291,6 @@ class Posts:
             # Update page source
             page_source = self.driver.page_source
             soup = BeautifulSoup(page_source, 'html.parser')
-            time.sleep(3)
 
             # find all tweets (div with data-testid="tweet")
             self.raw_tweets = soup.find_all('div', {'data-testid':'cellInnerDiv'})
