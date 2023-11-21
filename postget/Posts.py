@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
 import time
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -49,7 +49,6 @@ class Posts:
             since_time (str): String of the time from which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1
             until_time (str): String of the time until which the tweets will be returned. Format: timestamp in SECONDS, UTC time. Temporarily supported only for mode 1
         """
-        
         print("[postget]: You or your program started Postget, powered by")
         print("██╗░░░░░░█████╗░███╗░░██╗██████╗░░█████╗░███╗░░░███╗██╗██╗░░██╗")
         print("██║░░░░░██╔══██╗████╗░██║██╔══██╗██╔══██╗████╗░████║██║╚██╗██╔╝")
@@ -292,7 +291,6 @@ class Posts:
             # Update page source
             page_source = self.driver.page_source
             soup = BeautifulSoup(page_source, 'html.parser')
-            time.sleep(3)
 
             # find all tweets (div with data-testid="tweet")
             self.raw_tweets = soup.find_all('div', {'data-testid':'cellInnerDiv'})
@@ -318,8 +316,21 @@ class Posts:
                                 timestamp = dt.strftime('%Y-%m-%d %H:%M:%S')
                                 discussion_link = f'https://twitter.com{username_tweet_id["href"]}'
 
-                                # append username, tweet id, to the dictionary, and initializing the list of links to images and video preview
-                                self.tweets[username_tweet_id['href']] = {"username": username_tweet_id['href'].split('/')[1], "tweet_id": username_tweet_id['href'].split('/')[3], "discussion_link": discussion_link, "iso_8601_timestamp": iso_timestamp, "datetime_timestamp": timestamp, "images": [], "video_preview": []}
+                                # Retrieving tweet text
+                                tweet_text = raw_tweet.find('div', {'data-testid': 'tweetText'})
+                                # if tweet_text is not None. If tweet_text is None, output None
+                                if tweet_text:
+                                    tweet_text = tweet_text.get_text()
+
+                                # append username, tweet id, tweet text, to the dictionary, and initializing the list of links to images and video preview
+                                self.tweets[username_tweet_id['href']] = {"username": username_tweet_id['href'].split('/')[1], 
+                                                                          "tweet_id": username_tweet_id['href'].split('/')[3], 
+                                                                          "tweet_text": tweet_text, 
+                                                                          "discussion_link": discussion_link, 
+                                                                          "iso_8601_timestamp": iso_timestamp, 
+                                                                          "datetime_timestamp": timestamp, 
+                                                                          "images": [], 
+                                                                          "video_preview": []}
 
                                 # Retrieving images and video preview links
                                 images = raw_tweet.find_all('img')
@@ -343,8 +354,21 @@ class Posts:
                             timestamp = dt.strftime('%Y-%m-%d %H:%M:%S')
                             discussion_link = f'https://twitter.com{username_tweet_id["href"]}'
 
-                            # append username, tweet id, to the dictionary, and initializing the list of links to images and video preview
-                            self.tweets[username_tweet_id['href']] = {"username": username_tweet_id['href'].split('/')[1], "tweet_id": username_tweet_id['href'].split('/')[3],"discussion_link": discussion_link, "iso_8601_timestamp": iso_timestamp, "datetime_timestamp": timestamp, "images": [], "video_preview": []}
+                            # Retrieving tweet text
+                            tweet_text = raw_tweet.find('div', {'data-testid': 'tweetText'})
+                            # if tweet_text is not None. If tweet_text is None, output None
+                            if tweet_text:
+                                tweet_text = tweet_text.get_text()
+
+                            # append username, tweet id, tweet text, to the dictionary, and initializing the list of links to images and video preview
+                            self.tweets[username_tweet_id['href']] = {"username": username_tweet_id['href'].split('/')[1], 
+                                                                      "tweet_id": username_tweet_id['href'].split('/')[3], 
+                                                                      "tweet_text": tweet_text, 
+                                                                      "discussion_link": discussion_link, 
+                                                                      "iso_8601_timestamp": iso_timestamp, 
+                                                                      "datetime_timestamp": timestamp, 
+                                                                      "images": [], 
+                                                                      "video_preview": []}
 
                             # Retrieving images and video preview links
                             images = raw_tweet.find_all('img')
