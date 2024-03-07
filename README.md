@@ -1,6 +1,11 @@
 # postget
+:warning: :brain: Help for improvements is welcome! :brain: :warning:
+
+I'm a student, and I am developing this project in spare time. If you have any idea, or if you find any issue, feel free to make PRs or open issues!
+
 ## Sections
 - [Intent](#intent)
+- [Code Push Policy](#code-push-policy)
 - [Setup](#setup)
     - [Chromedriver](#chromedriver)
     - [Virtual Environment](#virtual-environment)
@@ -19,7 +24,13 @@
 <u>**This package is intended EXCLUSIVELY for demonstrative purposes. The author has no responsibility about the use you will do and the consequences of it. Keep in mind that running this code is forbidden, is just a demonstration about how scraping works. If you decide to run it anyway, you will assume all the responsibilities about the consequence it will have.**</u>
 
 This package wants to retrieve tweets text, images links and video preview links from tweets, without using APIs.
+## Code Push Policy
+Newer releases are merged into main. The development of a feature usually is found under a branch named `feature/<feature_name>`. Once a feature is complete, it will be merged in the `develop` branch.
 
+Improvements in the documentation are first done in `documentation_improvement` branch, and then merged either into
+`develop` or into `main`, according to when in the time I decided to improve the documentation (in general, if possible I will do it in `develop`).
+
+Once features are ready, the branch `develop` will be merged into `main`, where you should find a more stable version of the package.
 ## Setup
 
 ### Chromedriver
@@ -184,6 +195,7 @@ Please, change and access the parameters with getters and setters.
 ## Roadmap
 
 - [ ] Support for custom digitation speed (standard time plus or minus epsilon)
+- [ ] Thinking to move to poetry for better dependencies management and reproducibility
 - [ ] Support for both dark and light themes
 - [ ] Re-implement headless feature
 
